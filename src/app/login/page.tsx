@@ -53,11 +53,11 @@ const Login: FC = () => {
       </div>
 
       {/* Right side with login form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-white">
         <div className="w-full max-w-md space-y-8">
           <div>
-            <h1 className="text-3xl font-semibold text-gray-900">Welcome back</h1>
-            <p className="mt-2 text-sm text-gray-600">Please enter your email to sign in</p>
+            <h1 className="text-3xl font-semibold text-gray-900">¡Bienvenido!</h1>
+            <p className="mt-2 text-sm text-gray-600">Por favor ingrese su email para iniciar sesión</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
@@ -80,9 +80,23 @@ const Login: FC = () => {
               type="submit"
               className="w-full py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
             >
-              Sign In with Email
+              Sign In
             </button>
           </form>
+        </div>
+        
+        {/* Powered by Rain Group */}
+        <div className="absolute bottom-8 text-center">
+          <div className="inline-flex items-center gap-2 text-sm text-gray-400">
+            Powered by
+            <Image
+              src="/logo-raingroup.png"
+              alt="Rain Group"
+              width={80}
+              height={25}
+              className="object-contain -mt-0.5"
+            />
+          </div>
         </div>
       </div>
     </div>
