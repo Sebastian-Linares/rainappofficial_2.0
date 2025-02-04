@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -21,7 +21,7 @@ declare global {
   }
 }
 
-export default function Chat() {
+function ChatContent() {
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -180,6 +180,14 @@ export default function Chat() {
         <div id="agent-container" className="w-full h-[600px] rounded-lg shadow-lg bg-white"></div>
       </main>
     </div>
+  );
+}
+
+export default function Chat() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ChatContent />
+    </Suspense>
   );
 }
 

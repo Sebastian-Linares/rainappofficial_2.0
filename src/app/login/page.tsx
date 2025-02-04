@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react";
-import { signInWithCustomToken } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../lib/firebase"; // using your client-side Firebase config
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,31 +9,47 @@ import type { FC } from "react";
 
 const Login: FC = () => {
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setLoading(true);
 
     try {
-      // Call the passwordless login API with the provided email
-      const res = await fetch("/api/passwordless-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await res.json();
-      if (data.error) {
-        alert("Login failed: " + data.error);
-        return;
+      if (!email || !password) {
+        throw new Error("Email and password are required");
       }
 
-      const token = data.token;
-      // Sign in with the custom token
-      await signInWithCustomToken(auth, token);
+      // Sign in with email and password
+      await signInWithEmailAndPassword(auth, email, password);
       router.push("/chat");
     } catch (error: any) {
-      alert("Login failed: " + error.message);
+      console.error("Login error:", error);
+      let errorMessage = "An unexpected error occurred";
+      
+      // Provide more user-friendly error messages
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = "Invalid email address";
+          break;
+        case 'auth/user-not-found':
+          errorMessage = "No account found with this email";
+          break;
+        case 'auth/wrong-password':
+          errorMessage = "Incorrect password";
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = "Too many failed attempts. Please try again later";
+          break;
+      }
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,7 +73,7 @@ const Login: FC = () => {
         <div className="w-full max-w-md space-y-8">
           <div>
             <h1 className="text-3xl font-semibold text-gray-900">¡Bienvenido!</h1>
-            <p className="mt-2 text-sm text-gray-600">Por favor ingrese su email para iniciar sesión</p>
+            <p className="mt-2 text-sm text-gray-600">Por favor ingrese sus credenciales para iniciar sesión</p>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
@@ -71,16 +87,42 @@ const Login: FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={loading}
                   className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-black"
                   placeholder="name@example.com"
                 />
               </div>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                  className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md text-sm text-black"
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
+            {error && (
+              <div className="text-red-500 text-sm mt-2">
+                {error}
+              </div>
+            )}
             <button
               type="submit"
-              className="w-full py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
+              disabled={loading}
+              className={`w-full py-2 px-4 border border-transparent rounded-md text-sm font-medium text-white ${
+                loading 
+                  ? 'bg-blue-400 cursor-not-allowed' 
+                  : 'bg-blue-600 hover:bg-blue-700'
+              }`}
             >
-              Sign In
+              {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
         </div>
