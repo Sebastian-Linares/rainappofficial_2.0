@@ -34,3 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# large file
+.firebase/rain-chat-official/functions/node_modules/@next/swc-win32-x64-msvc/next-swc.win32-x64-msvc.node
